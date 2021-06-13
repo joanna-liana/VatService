@@ -1,0 +1,32 @@
+{
+  "name": "vat-service-port",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "jest --verbose",
+    "lint": "eslint --fix ."
+  },
+  "keywords": [],
+  "author": "Peggy Brown, Joanna Liana",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@types/node": "^15.0.1",
+    "@types/uuid": "^8.3.0",
+    "@types/uuid-validate": "^0.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.4.0",
+    "@typescript-eslint/parser": "^4.4.0",
+    "eslint": "^7.26.0",
+    "eslint-plugin-simple-import-sort": "^7.0.0",
+    "jest": "^26.6.3",
+    "jest-mock-extended": "^1.0.15",
+    "ts-jest": "^26.5.5",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "rxjs": "^7.1.0",
+    "uuid": "^8.3.2",
+    "uuid-validate": "^0.0.3"
+  }
+}
