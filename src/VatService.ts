@@ -11,17 +11,17 @@ export class VatService {
     this.#vatProvider = vatProvider;
   }
 
-  getGrossPrice(product: Product): number {
-    const vatValue = this.#vatProvider.getVatFor(product.country, product.type);
+  async getGrossPrice(product: Product): Promise<number> {
+    const vatValue = await this.#vatProvider.getVatFor(product.country, product.type);
 
     return this.#calculateGrossPrice(product.netPrice, vatValue);
   }
 
-  getGrossPrices(products: Observable<Product>): Observable<number> {
+  async getGrossPrices(products: Observable<Product>): Promise<Observable<Promise<number>>> {
     return products.pipe(
-      map(p => {
-        const vatValue = this.#vatProvider.getVatFor(p.country, p.type);
-        return this.#calculateGrossPrice(p.netPrice, vatValue);
+      map(async ({ country, type, netPrice }) => {
+        const vatValue = await this.#vatProvider.getVatFor(country, type);
+        return this.#calculateGrossPrice(netPrice, vatValue);
       })
     );
   }
