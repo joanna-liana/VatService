@@ -3,6 +3,7 @@ import { firstValueFrom, from, lastValueFrom } from 'rxjs';
 import { v4 } from 'uuid';
 
 import { Product } from './Product/Product';
+import { ProductBuilder } from './Product/test/Product.builder';
 import { Type } from './Product/Type';
 import { VatProvider } from './VatProvider';
 import { VatService } from './VatService';
@@ -14,7 +15,10 @@ describe('VatService', () => {
     vatProvider.getVatFor.calledWith(anyString(), any(Type)).mockResolvedValue(0.05);
 
     const serviceToTest = new VatService(vatProvider);
-    const product = new Product(v4(), 'My book', 20.50, Type.BOOK, 'Poland');
+    const product = new ProductBuilder()
+      .withNetPrice(20.50)
+      .withType(Type.BOOK)
+      .build();
 
     //when
     const grossPrice = await serviceToTest.getGrossPrice(product);
@@ -30,8 +34,15 @@ describe('VatService', () => {
     vatProvider.getVatFor.calledWith(anyString(), Type.CLOTHES).mockResolvedValue(0.07);
 
     const serviceToTest = new VatService(vatProvider);
-    const food = new Product(v4(), 'Chinese', 10.75, Type.FOOD, 'Poland');
-    const clothes = new Product(v4(), 'Jeans', 25.50, Type.CLOTHES, 'Poland');
+    const food = new ProductBuilder()
+      .withNetPrice(10.75)
+      .withType(Type.FOOD)
+      .build();
+
+    const clothes = new ProductBuilder()
+      .withNetPrice(25.50)
+      .withType(Type.CLOTHES)
+      .build();
 
     //when
     const grossPrices = await serviceToTest.getGrossPrices(from([food, clothes]));
