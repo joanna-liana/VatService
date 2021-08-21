@@ -1,7 +1,7 @@
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { Product } from './Product/Product';
+import { IProduct } from './Product/Product';
 import { VatProvider } from './VatProvider';
 
 export class VatService {
@@ -11,13 +11,13 @@ export class VatService {
     this.#vatProvider = vatProvider;
   }
 
-  getGrossPrice(product: Product): number {
+  getGrossPrice(product: IProduct): number {
     const vatValue = this.#vatProvider.getVatFor(product.country, product.type);
 
     return this.#calculateGrossPrice(product.netPrice, vatValue);
   }
 
-  getGrossPrices(products: Observable<Product>): Observable<number> {
+  getGrossPrices(products: Observable<IProduct>): Observable<number> {
     return products.pipe(
       map(p => {
         const vatValue = this.#vatProvider.getVatFor(p.country, p.type);

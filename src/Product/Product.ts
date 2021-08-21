@@ -1,6 +1,14 @@
 import { Type } from './Type';
 
-export class Product {
+export interface IProduct {
+  id: string;
+  name: string;
+  netPrice: number;
+  type: Type;
+  country: string;
+}
+
+export class Product implements IProduct {
   #id: string;
   #name: string;
   #netPrice: number;
@@ -19,6 +27,14 @@ export class Product {
     this.#netPrice = netPrice;
     this.#type = type;
     this.#country = country;
+  }
+
+  get id(): string {
+    return this.#id;
+  }
+
+  get name(): string {
+    return this.#name;
   }
 
   get netPrice(): number {
