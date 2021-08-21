@@ -9,10 +9,10 @@ import { VatProvider } from './VatProvider';
 import { VatService } from './VatService';
 
 describe('VatService', () => {
-  it('calculates the gross price of a book', async() => {
+  it('calculates the gross price of a book', async () => {
     //given
     const vatProvider = mock<VatProvider>();
-    vatProvider.getVatFor.calledWith(anyString(), any(Type)).mockReturnValue(0.05);
+    vatProvider.getVatFor.calledWith(anyString(), any(Type)).mockResolvedValue(0.05);
 
     const serviceToTest = new VatService(vatProvider);
     const product = new ProductBuilder()
@@ -21,7 +21,7 @@ describe('VatService', () => {
       .build();
 
     //when
-    const grossPrice = serviceToTest.getGrossPrice(product);
+    const grossPrice = await serviceToTest.getGrossPrice(product);
 
     //then
     expect(grossPrice).toEqual(21.53);
@@ -30,8 +30,8 @@ describe('VatService', () => {
   it('calculates the gross prices of the given products', async () => {
     //given
     const vatProvider = mock<VatProvider>();
-    vatProvider.getVatFor.calledWith(anyString(), Type.FOOD).mockReturnValue(0.05);
-    vatProvider.getVatFor.calledWith(anyString(), Type.CLOTHES).mockReturnValue(0.07);
+    vatProvider.getVatFor.calledWith(anyString(), Type.FOOD).mockResolvedValue(0.05);
+    vatProvider.getVatFor.calledWith(anyString(), Type.CLOTHES).mockResolvedValue(0.07);
 
     const serviceToTest = new VatService(vatProvider);
     const food = new ProductBuilder()
@@ -45,7 +45,7 @@ describe('VatService', () => {
       .build();
 
     //when
-    const grossPrices = serviceToTest.getGrossPrices(from([food, clothes]));
+    const grossPrices = await serviceToTest.getGrossPrices(from([food, clothes]));
 
     // then
     expect(await firstValueFrom(grossPrices)).toEqual(11.29);

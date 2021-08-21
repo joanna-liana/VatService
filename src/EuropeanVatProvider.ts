@@ -1,20 +1,35 @@
+import { firstValueFrom } from 'rxjs';
+
 import { CountryNotSupportedException } from './CountryNotSupportedException';
 import { Type } from './Product/Type';
+import { VatNotFoundException } from './Vat/VatNotFoundException';
+import { VatRepository } from './Vat/VatRepository';
 import { VatProvider } from './VatProvider';
 
 export class EuropeanVatProvider implements VatProvider {
-  getVatFor(country: string, productType: Type): number {
+  #vatRepository: VatRepository;
+  #poland = 'Poland';
+  #germany = 'Germany';
+  #denmark = 'Denmark';
+
+  constructor(vatRepository: VatRepository) {
+    this.#vatRepository = vatRepository;
+
+    this.#registerPolishVat();
+    this.#registerGermanVat();
+  }
+  async getVatFor(country: string, productType: Type): Promise<number> {
     let result: number;
 
     switch (country) {
-    case 'Poland':
-      result = this.#getPolishVatFor(productType);
+    case this.#poland:
+      result = await this.#getValueByCountry(this.#poland, productType, 0.23);
       break;
-    case 'Germany':
-      result = this.#getGermanVatFor(productType);
+    case this.#germany:
+      result = await this.#getValueByCountry(this.#germany, productType, 0.21);
       break;
-    case 'Denmark':
-      result = 0.08;
+    case this.#denmark:
+      result = await this.#getValueByCountry(this.#denmark, productType, 0.08);
       break;
     default:
       throw new CountryNotSupportedException(
@@ -24,31 +39,28 @@ export class EuropeanVatProvider implements VatProvider {
     return result;
   }
 
-  #getPolishVatFor(productType: Type): number {
-    let result: number;
+  async #getValueByCountry(country: string, productType: Type, defaultVat: number): Promise<number> {
+    try {
+      const vat = await firstValueFrom(this.#vatRepository.getVatFor(country, productType));
+      return vat.amount;
+    } catch (err) {
+      if (err instanceof VatNotFoundException) {
+        return defaultVat;
+      }
 
-    if ([Type.BABY, Type.BOOK].includes(productType)) {
-      result = 0.05;
-    } else if (productType === Type.FOOD) {
-      result = 0.08;
-    } else {
-      result = 0.23;
+      throw err;
     }
-
-    return result;
   }
 
-  #getGermanVatFor(productType: Type): number {
-    let result: number;
+  #registerPolishVat(): void {
+    this.#vatRepository.addVatValue(this.#poland, Type.BABY, 0.05);
+    this.#vatRepository.addVatValue(this.#poland, Type.BOOK, 0.08);
+  }
 
-    if ([Type.BABY, Type.BOOK, Type.FOOD].includes(productType)) {
-      result = 0.04;
-    } else if (productType === Type.CLOTHES) {
-      result = 0.1;
-    } else {
-      result = 0.21;
-    }
-
-    return result;
+  #registerGermanVat(): void {
+    this.#vatRepository.addVatValue(this.#germany, Type.BABY, 0.04);
+    this.#vatRepository.addVatValue(this.#germany, Type.BOOK, 0.04);
+    this.#vatRepository.addVatValue(this.#germany, Type.FOOD, 0.04);
+    this.#vatRepository.addVatValue(this.#germany, Type.CLOTHES, 0.1);
   }
 }
